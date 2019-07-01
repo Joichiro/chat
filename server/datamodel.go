@@ -229,6 +229,7 @@ type MsgClientPub struct {
 	NoEcho  bool                   `json:"noecho,omitempty"`
 	Head    map[string]interface{} `json:"head,omitempty"`
 	Content interface{}            `json:"content"`
+	Score   float64                `json:"score"`
 }
 
 // MsgClientGet is a query of topic state {get}.
@@ -417,6 +418,7 @@ type MsgServerData struct {
 	SeqId     int                    `json:"seq"`
 	Head      map[string]interface{} `json:"head,omitempty"`
 	Content   interface{}            `json:"content"`
+	Score     float64                `json:"score"`
 }
 
 // MsgServerPres is presence notification {pres} (authoritative update).

@@ -296,7 +296,8 @@ func (t *Topic) run(hub *Hub) {
 					Topic:     t.name,
 					From:      from.String(),
 					Head:      msg.Data.Head,
-					Content:   msg.Data.Content}, (userData.modeGiven & userData.modeWant).IsReader()); err != nil {
+					Content:   msg.Data.Content,
+					Score:     msg.Data.Score}, (userData.modeGiven & userData.modeWant).IsReader()); err != nil {
 
 					log.Printf("topic[%s]: failed to save message: %v", t.name, err)
 					msg.sess.queueOut(ErrUnknown(msg.id, t.original(asUid), msg.timestamp))
@@ -1754,7 +1755,8 @@ func (t *Topic) replyGetData(sess *Session, asUid types.Uid, id string, req *Msg
 					SeqId:     mm.SeqId,
 					From:      types.ParseUid(mm.From).UserId(),
 					Timestamp: mm.CreatedAt,
-					Content:   mm.Content}})
+					Content:   mm.Content,
+					Score:     mm.Score}})
 			}
 		}
 	}
@@ -2245,7 +2247,8 @@ func (t *Topic) makePushReceipt(fromUid types.Uid, data *MsgServerData) *pushRec
 			From:      data.From,
 			Timestamp: data.Timestamp,
 			SeqId:     data.SeqId,
-			Content:   data.Content}}
+			Content:   data.Content,
+			Score:     data.Score}}
 
 	i := 0
 	for uid := range t.perUser {

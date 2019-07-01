@@ -350,6 +350,7 @@ message ServerData {
 	int32 seq_id = 4;
 	map<string, bytes> head = 5;
 	bytes content = 6;
+	double score = 8;
 }
 
 // {pres} message

@@ -35,7 +35,8 @@ func pbServDataSerialize(data *MsgServerData) *pbx.ServerMsg_Data {
 		DeletedAt:  timeToInt64(data.DeletedAt),
 		SeqId:      int32(data.SeqId),
 		Head:       interfaceMapToByteMap(data.Head),
-		Content:    interfaceToBytes(data.Content)}}
+		Content:    interfaceToBytes(data.Content),
+		Score:      data.Score}}
 }
 
 func pbServPresSerialize(pres *MsgServerPres) *pbx.ServerMsg_Pres {
@@ -144,6 +145,7 @@ func pbServDeserialize(pkt *pbx.ServerMsg) *ServerComMessage {
 			SeqId:     int(data.GetSeqId()),
 			Head:      byteMapToInterfaceMap(data.GetHead()),
 			Content:   data.GetContent(),
+			Score:     data.GetScore(),
 		}
 	} else if pres := pkt.GetPres(); pres != nil {
 		var what string

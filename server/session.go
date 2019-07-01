@@ -10,19 +10,22 @@
 package main
 
 import (
+	"bytes"
 	"container/list"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/Joichiro/chat/pbx"
 	"github.com/Joichiro/chat/server/auth"
 	"github.com/Joichiro/chat/server/store"
 	"github.com/Joichiro/chat/server/store/types"
+	"github.com/gorilla/websocket"
 )
 
 // Wire transport
@@ -241,6 +244,51 @@ func (s *Session) dispatchRaw(raw []byte) {
 	s.dispatch(&msg)
 }
 
+func (s *Session) analyse(msg *ClientComMessage) (error, float64) {
+	var m types.MessageToAnalyse
+	m.MessageID = 1
+	m.DialogID = 1
+	m.Content = msg.Pub.Content
+	m.CreatedAt = time.Now().Nanosecond()
+	m.UserID = 1
+	m.ParticipantsID = 0
+
+	req, err := json.Marshal(m)
+	if err != nil {
+		fmt.Printf("error while marshalling %v", err)
+		return err, 0
+	}
+
+	resp, err := http.Post("https://emojinarium.herokuapp.com/get_message", "application/json", bytes.NewBuffer(req))
+	if err != nil {
+		fmt.Printf("error while posting to analytics %v", err)
+		return err, 0
+	}
+	var analyse types.Analyse
+
+	mesg, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("error while reading response %v", err)
+		return err, 0
+	}
+	err = json.Unmarshal(mesg, &analyse)
+	if err != nil {
+		fmt.Printf("error while unmarshalling response %v", err)
+		return err, 0
+	}
+
+	var model types.Models
+
+	for _, a := range analyse.Models {
+		model.ModelID = a.ModelID
+		model.ModelScore = a.ModelScore
+		model.ModelTo = a.ModelTo
+		model.ToID = a.ToID
+	}
+
+	return nil, model.ModelScore
+}
+
 func (s *Session) dispatch(msg *ClientComMessage) {
 	s.lastAction = types.TimeNow()
 	msg.timestamp = s.lastAction
@@ -298,6 +346,11 @@ func (s *Session) dispatch(msg *ClientComMessage) {
 		msg.id = msg.Pub.Id
 		msg.topic = msg.Pub.Topic
 		uaRefresh = true
+		err, a := s.analyse(msg)
+		if err != nil {
+			fmt.Println(err)
+		}
+		msg.Pub.Score = a
 
 	case msg.Sub != nil:
 		handler = checkVers(msg, checkUser(msg, s.subscribe))
@@ -473,7 +526,8 @@ func (s *Session) publish(msg *ClientComMessage) {
 		From:      msg.from,
 		Timestamp: msg.timestamp,
 		Head:      msg.Pub.Head,
-		Content:   msg.Pub.Content},
+		Content:   msg.Pub.Content,
+		Score:     msg.Pub.Score},
 		// Unroutable values.
 		rcptto:    expanded,
 		sess:      s,

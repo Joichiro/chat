@@ -916,7 +916,7 @@ type Message struct {
 }
 
 type MessageToAnalyse struct {
-	MessageID      int         `json:"message_id"`
+	MessageID      int64       `json:"message_id"`
 	DialogID       int         `json:"dialog_id"`
 	ParticipantsID int         `json:"participants_id"`
 	UserID         int         `json:"user_id"`
@@ -925,8 +925,8 @@ type MessageToAnalyse struct {
 }
 
 type AnalysedMessage struct {
-	MessageID int `json:"message_id"`
-	Score     int `json:"score"`
+	MessageID int     `json:"message_id"`
+	Score     float64 `json:"score"`
 }
 
 type Analyse struct {
@@ -935,18 +935,18 @@ type Analyse struct {
 	ParticipantsID int `json:"participants_id"`
 	UserID         int `json:"user_id"`
 	Models         []struct {
-		ModelID    int    `json:"model_id"`
-		ModelScore int    `json:"model_score"`
-		ModelTo    string `json:"model_to"`
-		ToID       int    `json:"to_id"`
+		ModelID    int     `json:"model_id"`
+		ModelScore float64 `json:"model_score"`
+		ModelTo    string  `json:"model_to"`
+		ToID       int     `json:"to_id"`
 	} `json:"models"`
 }
 
 type Models struct {
-	ModelID    int    `json:"model_id"`
-	ModelScore int    `json:"model_score"`
-	ModelTo    string `json:"model_to"`
-	ToID       int    `json:"to_id"`
+	ModelID    int     `json:"model_id"`
+	ModelScore float64 `json:"model_score"`
+	ModelTo    string  `json:"model_to"`
+	ToID       int     `json:"to_id"`
 }
 
 // Range is a range of message SeqIDs. Low end is inclusive (closed), high end is exclusive (open): [Low, Hi).

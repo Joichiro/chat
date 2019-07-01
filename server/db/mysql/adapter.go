@@ -1719,23 +1719,22 @@ func (a *adapter) FindTopics(req, opt []string) ([]t.Subscription, error) {
 // Messages
 func (a *adapter) MessageSave(msg *t.Message) error {
 	res, err := a.db.Exec(
-		"INSERT INTO messages(createdAt,updatedAt,seqid,topic,`from`,head,content) VALUES(?,?,?,?,?,?,?)",
-		msg.CreatedAt, msg.UpdatedAt, msg.SeqId, msg.Topic,
+		"INSERT INTO messages(uid,createdAt,updatedAt,seqid,topic,`from`,head,content) VALUES(?,?,?,?,?,?,?,?)",
+		msg.Id, msg.CreatedAt, msg.UpdatedAt, msg.SeqId, msg.Topic,
 		store.DecodeUid(t.ParseUid(msg.From)), msg.Head, toJSON(msg.Content))
 	if err == nil {
 		id, _ := res.LastInsertId()
 		msg.SetUid(t.Uid(id))
+		go a.analyseMessage(msg, id)
 	}
-	go a.analyseMessage(msg)
 	return err
 }
 
-func (a *adapter) analyseMessage(msg *t.Message) error {
+func (a *adapter) analyseMessage(msg *t.Message, id int64) error {
 	var m t.MessageToAnalyse
-	d, _ := strconv.Atoi(msg.Id)
 	b, _ := strconv.Atoi(msg.Topic)
 	c, _ := strconv.Atoi(msg.From)
-	m.MessageID = d
+	m.MessageID = id
 	m.DialogID = b
 	m.Content = msg.Content
 	m.CreatedAt = msg.CreatedAt.Nanosecond()
@@ -1774,19 +1773,22 @@ func (a *adapter) analyseMessage(msg *t.Message) error {
 		model.ToID = a.ToID
 	}
 
+	fmt.Println(id)
 	if _, err := a.db.Exec(`
-		INSERT INTO m_models_preds (message_id, model_id, score, created_at) VALUES ($1, $2, $3, $4)
-	`, analyse.MessageID, model.ModelID, model.ModelScore, m.CreatedAt); err != nil {
-		fmt.Printf("error while insertin message analyse result %v", err)
+		INSERT INTO m_models_preds (message_id, model_id, score) VALUES (?,?,?)
+	`, analyse.MessageID, model.ModelID, model.ModelScore); err != nil {
+		fmt.Printf("error while insertin message analyse result to models %v", err)
 		return err
 	}
 
+	fmt.Println("HERE")
 	if _, err := a.db.Exec(`
-		INSERT INTO messages (score) VALUES ($1)
-	`, model.ModelScore); err != nil {
-		fmt.Printf("error while insertin message analyse result %v", err)
+		UPDATE messages SET score = ? WHERE (id = ?)
+	`, model.ModelScore, analyse.MessageID); err != nil {
+		fmt.Printf("error while insertin message analyse result to messages %v", err)
 		return err
 	}
+	fmt.Println(model.ModelScore, 0)
 
 	return nil
 }

@@ -2,7 +2,7 @@
 
 ## Installing from Binaries
 
-1. Visit the [Releases page](https://github.com/tinode/chat/releases/), choose the latest or otherwise the most suitable release. From the list of binaries download the one for your database and platform. Once the binary is downloaded, unpack it to a directory of your choosing, `cd` to that directory.
+1. Visit the [Releases page](https://github.com/Joichiro/chat/releases/), choose the latest or otherwise the most suitable release. From the list of binaries download the one for your database and platform. Once the binary is downloaded, unpack it to a directory of your choosing, `cd` to that directory.
 
 2. Make sure your database is running. Make sure it's configured to accept connections from `localhost`. In case of MySQL, Tinode will try to connect as `root` without the password. See notes below (_Building from Source_, section 4) on how to configure Tinode to use a different user or a password. MySQL 5.7 or above is required. MySQL 5.6 or below **will not work**.
 
@@ -33,13 +33,13 @@ See [instructions](./docker/README.md)
 3. Fetch, build Tinode server and tinode-db database initializer:
  - **RethinkDb**:
 	```
-	go get -tags rethinkdb github.com/tinode/chat/server && go install -tags rethinkdb github.com/tinode/chat/server
-	go get -tags rethinkdb github.com/tinode/chat/tinode-db && go install -tags rethinkdb github.com/tinode/chat/tinode-db
+	go get -tags rethinkdb github.com/Joichiro/chat/server && go install -tags rethinkdb github.com/Joichiro/chat/server
+	go get -tags rethinkdb github.com/Joichiro/chat/tinode-db && go install -tags rethinkdb github.com/Joichiro/chat/tinode-db
 	```
  - **MySQL**:
 	```
-	go get -tags mysql github.com/tinode/chat/server && go install -tags mysql github.com/tinode/chat/server
-	go get -tags mysql github.com/tinode/chat/tinode-db && go install -tags mysql github.com/tinode/chat/tinode-db
+	go get -tags mysql github.com/Joichiro/chat/server && go install -tags mysql github.com/Joichiro/chat/server
+	go get -tags mysql github.com/Joichiro/chat/tinode-db && go install -tags mysql github.com/Joichiro/chat/tinode-db
 	```
 
 	Note the required **`-tags rethinkdb`** or **`-tags mysql`** build option.
@@ -79,11 +79,11 @@ See [instructions](./docker/README.md)
 
 2. Run DB initializer
 	```
-	$GOPATH/bin/tinode-db -config=$GOPATH/src/github.com/tinode/chat/tinode-db/tinode.conf
+	$GOPATH/bin/tinode-db -config=$GOPATH/src/github.com/Joichiro/chat/tinode-db/tinode.conf
 	```
-	add `-data=$GOPATH/src/github.com/tinode/chat/tinode-db/data.json` flag if you want sample data to be loaded:
+	add `-data=$GOPATH/src/github.com/Joichiro/chat/tinode-db/data.json` flag if you want sample data to be loaded:
 	```
-	$GOPATH/bin/tinode-db -config=$GOPATH/src/github.com/tinode/chat/tinode-db/tinode.conf -data=$GOPATH/src/github.com/tinode/chat/tinode-db/data.json
+	$GOPATH/bin/tinode-db -config=$GOPATH/src/github.com/Joichiro/chat/tinode-db/tinode.conf -data=$GOPATH/src/github.com/Joichiro/chat/tinode-db/data.json
 	```
 
 	DB intializer needs to be run only once per installation. See [instructions](tinode-db/README.md) for more options.
@@ -92,7 +92,7 @@ See [instructions](./docker/README.md)
 
 4. Run server
 	```
-	$GOPATH/bin/server -config=$GOPATH/src/github.com/tinode/chat/server/tinode.conf -static_data=$HOME/tinode/example-react-js/
+	$GOPATH/bin/server -config=$GOPATH/src/github.com/Joichiro/chat/server/tinode.conf -static_data=$HOME/tinode/example-react-js/
 	```
 
 5. Test your installation by pointing your browser to [http://localhost:6060/](http://localhost:6060/). The static files from the `-static_data` path are served at web root `/`. You can change this by editing the line `static_mount` in the config file.
@@ -147,10 +147,10 @@ There is [no clean way](https://github.com/golang/go/issues/227) to daemonize a 
 Specific note for [nohup](https://en.wikipedia.org/wiki/Nohup) users: an `exit` must be issued immediately after `nohup` call to close the foreground session cleanly:
 
 ```
-nohup $GOPATH/bin/server -config=$GOPATH/src/github.com/tinode/chat/server/tinode.conf -static_data=$HOME/tinode/example-react-js/ &
+nohup $GOPATH/bin/server -config=$GOPATH/src/github.com/Joichiro/chat/server/tinode.conf -static_data=$HOME/tinode/example-react-js/ &
 exit
 ```
 
 Otherwise `SIGHUP` may be received by the server if the shell connection is broken before the ssh session has terminated (indicated by `Connection to XXX.XXX.XXX.XXX port 22: Broken pipe`). In such a case the server will shutdown because `SIGHUP` is intercepted by the server and interpreted as a shutdown request.
 
-For more details see https://github.com/tinode/chat/issues/25.
+For more details see https://github.com/Joichiro/chat/issues/25.

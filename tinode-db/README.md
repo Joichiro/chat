@@ -38,5 +38,5 @@ Avatar photos curtesy of https://www.pexels.com/ under [CC0 license](https://www
 
 ## Links:
 
-* [RethinkDB schema](https://github.com/tinode/chat/tree/master/server/db/rethinkdb/schema.md)
-* [MySQL schema](https://github.com/tinode/chat/tree/master/server/db/mysql/schema.sql)
+* [RethinkDB schema](https://github.com/Joichiro/chat/tree/master/server/db/rethinkdb/schema.md)
+* [MySQL schema](https://github.com/Joichiro/chat/tree/master/server/db/mysql/schema.sql)
