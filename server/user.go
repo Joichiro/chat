@@ -4,9 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/tinode/chat/server/auth"
-	"github.com/tinode/chat/server/store"
-	"github.com/tinode/chat/server/store/types"
+	"github.com/Joichiro/chat/server/auth"
+	"github.com/Joichiro/chat/server/store"
+	"github.com/Joichiro/chat/server/store/types"
 )
 
 // Process request for a new account.

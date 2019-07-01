@@ -28,31 +28,31 @@ import (
 	gh "github.com/gorilla/handlers"
 
 	// Authenticators
-	"github.com/tinode/chat/server/auth"
-	_ "github.com/tinode/chat/server/auth/anon"
-	_ "github.com/tinode/chat/server/auth/basic"
-	_ "github.com/tinode/chat/server/auth/rest"
-	_ "github.com/tinode/chat/server/auth/token"
+	"github.com/Joichiro/chat/server/auth"
+	_ "github.com/Joichiro/chat/server/auth/anon"
+	_ "github.com/Joichiro/chat/server/auth/basic"
+	_ "github.com/Joichiro/chat/server/auth/rest"
+	_ "github.com/Joichiro/chat/server/auth/token"
 
 	// Database backends
-	_ "github.com/tinode/chat/server/db/mysql"
-	_ "github.com/tinode/chat/server/db/rethinkdb"
+	_ "github.com/Joichiro/chat/server/db/mysql"
+	_ "github.com/Joichiro/chat/server/db/rethinkdb"
 
 	// Push notifications
-	"github.com/tinode/chat/server/push"
-	_ "github.com/tinode/chat/server/push/fcm"
-	_ "github.com/tinode/chat/server/push/stdout"
+	"github.com/Joichiro/chat/server/push"
+	_ "github.com/Joichiro/chat/server/push/fcm"
+	_ "github.com/Joichiro/chat/server/push/stdout"
 
-	"github.com/tinode/chat/server/store"
+	"github.com/Joichiro/chat/server/store"
 
 	// Credential validators
-	_ "github.com/tinode/chat/server/validate/email"
-	_ "github.com/tinode/chat/server/validate/tel"
+	_ "github.com/Joichiro/chat/server/validate/email"
+	_ "github.com/Joichiro/chat/server/validate/tel"
 	"google.golang.org/grpc"
 
 	// File upload handlers
-	_ "github.com/tinode/chat/server/media/fs"
-	_ "github.com/tinode/chat/server/media/s3"
+	_ "github.com/Joichiro/chat/server/media/fs"
+	_ "github.com/Joichiro/chat/server/media/s3"
 )
 
 const (

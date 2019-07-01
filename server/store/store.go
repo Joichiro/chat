@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tinode/chat/server/auth"
-	"github.com/tinode/chat/server/db"
-	"github.com/tinode/chat/server/media"
-	"github.com/tinode/chat/server/store/types"
-	"github.com/tinode/chat/server/validate"
+	"github.com/Joichiro/chat/server/auth"
+	"github.com/Joichiro/chat/server/db"
+	"github.com/Joichiro/chat/server/media"
+	"github.com/Joichiro/chat/server/store/types"
+	"github.com/Joichiro/chat/server/validate"
 )
 
 var adp adapter.Adapter

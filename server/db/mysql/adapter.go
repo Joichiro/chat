@@ -3,19 +3,23 @@
 package mysql
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"hash/fnv"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Joichiro/chat/server/auth"
+	"github.com/Joichiro/chat/server/store"
+	t "github.com/Joichiro/chat/server/store/types"
 	ms "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/tinode/chat/server/auth"
-	"github.com/tinode/chat/server/store"
-	t "github.com/tinode/chat/server/store/types"
 )
 
 // adapter holds MySQL connection data.
@@ -1722,7 +1726,69 @@ func (a *adapter) MessageSave(msg *t.Message) error {
 		id, _ := res.LastInsertId()
 		msg.SetUid(t.Uid(id))
 	}
+	go a.analyseMessage(msg)
 	return err
+}
+
+func (a *adapter) analyseMessage(msg *t.Message) error {
+	var m t.MessageToAnalyse
+	d, _ := strconv.Atoi(msg.Id)
+	b, _ := strconv.Atoi(msg.Topic)
+	c, _ := strconv.Atoi(msg.From)
+	m.MessageID = d
+	m.DialogID = b
+	m.Content = msg.Content
+	m.CreatedAt = msg.CreatedAt.Nanosecond()
+	m.UserID = c
+	m.ParticipantsID = 0
+
+	req, err := json.Marshal(m)
+	if err != nil {
+		fmt.Printf("error while marshalling %v", err)
+		return err
+	}
+
+	resp, err := http.Post("https://emojinarium.herokuapp.com/get_message", "application/json", bytes.NewBuffer(req))
+	if err != nil {
+		fmt.Printf("error while posting to analytics %v", err)
+	}
+	var analyse t.Analyse
+
+	mesg, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("error while reading response %v", err)
+		return err
+	}
+	err = json.Unmarshal(mesg, &analyse)
+	if err != nil {
+		fmt.Printf("error while unmarshalling response %v", err)
+		return err
+	}
+
+	var model t.Models
+
+	for _, a := range analyse.Models {
+		model.ModelID = a.ModelID
+		model.ModelScore = a.ModelScore
+		model.ModelTo = a.ModelTo
+		model.ToID = a.ToID
+	}
+
+	if _, err := a.db.Exec(`
+		INSERT INTO m_models_preds (message_id, model_id, score, created_at) VALUES ($1, $2, $3, $4)
+	`, analyse.MessageID, model.ModelID, model.ModelScore, m.CreatedAt); err != nil {
+		fmt.Printf("error while insertin message analyse result %v", err)
+		return err
+	}
+
+	if _, err := a.db.Exec(`
+		INSERT INTO messages (score) VALUES ($1)
+	`, model.ModelScore); err != nil {
+		fmt.Printf("error while insertin message analyse result %v", err)
+		return err
+	}
+
+	return nil
 }
 
 func (a *adapter) MessageGetAll(topic string, forUser t.Uid, opts *t.QueryOpt) ([]t.Message, error) {
@@ -1746,7 +1812,7 @@ func (a *adapter) MessageGetAll(topic string, forUser t.Uid, opts *t.QueryOpt) (
 
 	unum := store.DecodeUid(forUser)
 	rows, err := a.db.Queryx(
-		"SELECT m.createdat,m.updatedat,m.deletedat,m.delid,m.seqid,m.topic,m.`from`,m.head,m.content"+
+		"SELECT m.createdat,m.updatedat,m.deletedat,m.delid,m.seqid,m.topic,m.`from`,m.head,m.content,m.score"+
 			" FROM messages AS m LEFT JOIN dellog AS d"+
 			" ON d.topic=m.topic AND m.seqid BETWEEN d.low AND d.hi AND d.deletedfor=?"+
 			" WHERE m.delid=0 AND m.topic=? AND m.seqid BETWEEN ? AND ? AND d.deletedfor IS NULL"+

@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tinode/chat/server/store"
-	t "github.com/tinode/chat/server/store/types"
+	"github.com/Joichiro/chat/server/store"
+	t "github.com/Joichiro/chat/server/store/types"
 )
 
 // Validator configuration.

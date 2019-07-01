@@ -912,6 +912,41 @@ type Message struct {
 	From    string
 	Head    MessageHeaders `json:"Head,omitempty"`
 	Content interface{}
+	Score   float64 `json:"score"`
+}
+
+type MessageToAnalyse struct {
+	MessageID      int         `json:"message_id"`
+	DialogID       int         `json:"dialog_id"`
+	ParticipantsID int         `json:"participants_id"`
+	UserID         int         `json:"user_id"`
+	Content        interface{} `json:"content"`
+	CreatedAt      int         `json:"created_at"`
+}
+
+type AnalysedMessage struct {
+	MessageID int `json:"message_id"`
+	Score     int `json:"score"`
+}
+
+type Analyse struct {
+	MessageID      int `json:"message_id"`
+	DialogID       int `json:"dialog_id"`
+	ParticipantsID int `json:"participants_id"`
+	UserID         int `json:"user_id"`
+	Models         []struct {
+		ModelID    int    `json:"model_id"`
+		ModelScore int    `json:"model_score"`
+		ModelTo    string `json:"model_to"`
+		ToID       int    `json:"to_id"`
+	} `json:"models"`
+}
+
+type Models struct {
+	ModelID    int    `json:"model_id"`
+	ModelScore int    `json:"model_score"`
+	ModelTo    string `json:"model_to"`
+	ToID       int    `json:"to_id"`
 }
 
 // Range is a range of message SeqIDs. Low end is inclusive (closed), high end is exclusive (open): [Low, Hi).
